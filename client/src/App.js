@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import "./styles/main.scss";
 import Header from "./containers/header/Header";
+import Form from "./components/form/Form";
 
 function App() {
   const [user, setUser] = useState(false);
@@ -12,10 +13,12 @@ function App() {
 
   return (
     <div className="App">
-      {!user && (
+      {user ? (
         <div>
           <Header />
         </div>
+      ) : (
+        <Form />
       )}
     </div>
   );

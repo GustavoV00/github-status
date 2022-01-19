@@ -1,0 +1,53 @@
+.header {
+  background-color: $background-color;
+  height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  &__my-self {
+    display: flex;
+    flex-direction: column;
+
+    .circle {
+      margin: 0 auto;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      color: aqua;
+      background-color: aqua;
+    }
+
+    .gvn {
+      margin-top: 5vh;
+      padding-bottom: 1vh;
+      text-align: center;
+    }
+
+    .username {
+      text-align: center;
+      padding-bottom: 2vh;
+    }
+
+    .date {
+      text-align: center;
+    }
+  }
+
+  .generalInfos {
+    display: flex;
+    margin-top: 2rem;
+
+    .margin-box {
+      margin-right: 0.5rem;
+    }
+
+    .box {
+      border-radius: 5px;
+      background-color: $button-color;
+      width: 8rem;
+      height: 5rem;
+    }
+  }
+}

@@ -1,13 +1,30 @@
-import React from "react";
+import React, { useContext } from "react";
 
-import "./form.scss";
+import axios from "axios";
+import { UserDataContext } from "../../store/UserDataProvider";
+import { RiGithubFill } from "react-icons/ri";
 
-const Form = () => {
+const Form = ({ searchUser }) => {
+  const [data, setData] = useContext(UserDataContext);
+  // https://api.github.com/users/defunkt
+
+  const dataHandler = (e) => {
+    e.preventDefault();
+    const username = e.target.username.value;
+    if (username !== "") {
+      axios.get(`https://api.github.com/users/${username}`).then((response) => {
+        console.log(response.data);
+        setData(response.data);
+      });
+      searchUser();
+    }
+  };
+
   return (
-    <form className="form">
-      <img />
-      <label>Username</label>
-      <input type="text" />
+    <form className="form" onSubmit={dataHandler}>
+      <RiGithubFill className="form__icon" />
+      <label className="form__label">Username</label>
+      <input type="text" className="form__input" name="username" />
     </form>
   );
 };

@@ -1,0 +1,55 @@
+.main {
+  background-color: antiquewhite;
+  padding-top: 5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .big-status {
+    width: 80%;
+    height: 40vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+
+    .box-main {
+      background-color: aquamarine;
+    }
+
+    .box-main-margin {
+      margin-right: 5px;
+    }
+  }
+
+  .repo-cards {
+    width: 100%;
+    margin-top: 15rem;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+
+    &__title {
+      display: flex;
+      justify-content: center;
+
+      .filter {
+        width: 12rem;
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+  }
+
+  .top-repos {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    &__cards {
+      width: 20%;
+      height: 30vh;
+      margin: 10px;
+      background-color: aquamarine;
+    }
+  }
+}

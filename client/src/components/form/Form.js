@@ -5,17 +5,19 @@ import { UserDataContext } from "../../store/UserDataProvider";
 import { RiGithubFill } from "react-icons/ri";
 
 const Form = ({ searchUser }) => {
-  const [data, setData] = useContext(UserDataContext);
+  const { setData } = useContext(UserDataContext);
   // https://api.github.com/users/defunkt
 
-  const dataHandler = (e) => {
+  const dataHandler = async (e) => {
     e.preventDefault();
     const username = e.target.username.value;
     if (username !== "") {
-      axios.get(`https://api.github.com/users/${username}`).then((response) => {
-        console.log(response.data);
-        setData(response.data);
-      });
+      await axios
+        .get(`https://api.github.com/users/${username}`)
+        .then((response) => {
+          console.log(response.data);
+          setData(response.data);
+        });
       searchUser();
     }
   };

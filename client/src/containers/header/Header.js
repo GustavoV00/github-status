@@ -5,22 +5,22 @@ import { UserDataContext } from "../../store/UserDataProvider";
 
 const Header = () => {
   const [repoAmount, setRepoAmount] = useState(0);
-  const date = new Date();
 
-  const [data, setData] = useContext(UserDataContext);
-
-  function repositoriesHandler() {
-    try {
-      axios.get(data.repos_url).then((res) => {
-        console.log(res);
-        setRepoAmount(res.data.length);
-      });
-    } catch (error) {}
-  }
+  const { data, setRepoData } = useContext(UserDataContext);
 
   useEffect(() => {
+    async function repositoriesHandler() {
+      try {
+        await axios.get(data.repos_url).then((res) => {
+          console.log(res);
+          setRepoData(res);
+          setRepoAmount(res.data.length);
+        });
+      } catch (error) {}
+    }
+
     repositoriesHandler();
-  }, [data]);
+  }, [data, setRepoData]);
 
   return (
     <header className="header">

@@ -1,6 +1,21 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
+
+import { UserDataContext } from "../../store/UserDataProvider";
 
 const Main = () => {
+  const { repoData } = useContext(UserDataContext);
+  const [langauges, setLanguages] = useState([]);
+
+  useEffect(() => {
+    function countLanguageHandler() {
+      const result = repoData.data.map((item) => item.language);
+      console.log(result);
+      setLanguages(result);
+    }
+
+    countLanguageHandler();
+  }, [repoData]);
+
   return (
     <main className="main">
       <div className="big-status">

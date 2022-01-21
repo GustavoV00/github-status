@@ -1,25 +1,81 @@
 import React, { useContext, useEffect, useState } from "react";
+import axios from "axios";
 
 import { UserDataContext } from "../../store/UserDataProvider";
+import { getRandomRgb } from "../../utils/UtilFunctions";
+
+const chartData = [{}];
+
+const allInfos = [];
+const githubStatusTitle = [
+  "Top Languages",
+  "Most Starred",
+  "Stars per Language",
+];
 
 const Main = () => {
-  const { repoData } = useContext(UserDataContext);
-  const [langauges, setLanguages] = useState([]);
+  const { data, repoData } = useContext(UserDataContext);
+  const [barData, setBarData] = useState(chartData);
+
+  const removeDuplicates = () => {
+    return allInfos.language.reducer(
+      (acc, value) => ({
+        ...acc,
+        [value]: (acc[value] || 0) + 1,
+      }),
+      {}
+    );
+  };
 
   useEffect(() => {
-    function countLanguageHandler() {
-      const result = repoData.data.map((item) => item.language);
-      console.log(result);
-      setLanguages(result);
-    }
+    const barDataHandler = () => {
+      const langCounted = removeDuplicates();
+      for (let i = 0; i < githubStatusTitle.length; i++) {
+        chartData[i].datasets.label = githubStatusTitle[i];
+        for (const [key, value] of Object.entries(langCounted)) {
+          chartData[i].labels.push(key);
+          chartData[i].datasets[0].data.push(value);
+          chartData[i].datasets[0].backgroundColor.push(getRandomRgb());
+          chartData[i].datasets[0].borderWidth = 1;
+        }
+      }
 
-    countLanguageHandler();
-  }, [repoData]);
+      setBarData(chartData);
+      console.log(chartData);
+    };
+
+    const languageHandler = () => {
+      try {
+        console.log(data.subscriptions_url);
+        axios.get(data.subscriptions_url).then((res) =>
+          res.data.map((item) => {
+            const test = {
+              name: item.name,
+              language: item.language,
+              stars: item.stargazers_count,
+              forks: item.forks,
+              description: item.description,
+            };
+            allInfos.push(test);
+            return item;
+          })
+        );
+
+        barDataHandler();
+        console.log("ALL INFOS", allInfos);
+        console.log(chartData);
+      } catch (e) {
+        console.log("Erro aqui no RESULTS", e);
+      }
+    };
+
+    languageHandler();
+  }, [data, githubStatusTitle, repoData]);
 
   return (
     <main className="main">
       <div className="big-status">
-        <div className="box-main box-main-margin"></div>
+        <div className="box-main box-main-margin">{/* <Chart /> */}</div>
         <div className="box-main box-main-margin"></div>
         <div className="box-main"></div>
       </div>

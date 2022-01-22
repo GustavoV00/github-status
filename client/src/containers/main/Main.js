@@ -3,10 +3,11 @@ import axios from "axios";
 
 import { UserDataContext } from "../../store/UserDataProvider";
 import { getRandomRgb } from "../../utils/UtilFunctions";
-
-const chartData = [{}];
+import chartData from "../../utils/ChartDataClass";
 
 const allInfos = [];
+const counts = {};
+
 const githubStatusTitle = [
   "Top Languages",
   "Most Starred",
@@ -18,36 +19,33 @@ const Main = () => {
   const [barData, setBarData] = useState(chartData);
 
   const removeDuplicates = () => {
-    return allInfos.language.reducer(
-      (acc, value) => ({
-        ...acc,
-        [value]: (acc[value] || 0) + 1,
-      }),
-      {}
-    );
+    allInfos.forEach(function (x) {
+      counts[x.language] = (counts[x.language] || 0) + 1;
+    });
+    console.log(counts);
+    return counts;
   };
 
   useEffect(() => {
     const barDataHandler = () => {
+      const aux = [];
       const langCounted = removeDuplicates();
       for (let i = 0; i < githubStatusTitle.length; i++) {
-        chartData[i].datasets.label = githubStatusTitle[i];
         for (const [key, value] of Object.entries(langCounted)) {
-          chartData[i].labels.push(key);
-          chartData[i].datasets[0].data.push(value);
-          chartData[i].datasets[0].backgroundColor.push(getRandomRgb());
-          chartData[i].datasets[0].borderWidth = 1;
+          const keyArr = keyArr.push(key);
+          const valueArr = valueArr.push(value);
+          const backgroundColorArr = backgroundColorArr.push(getRandomRgb());
         }
+
+        // CONTINUAR AQUI PORRA
       }
 
       setBarData(chartData);
-      console.log(chartData);
     };
 
-    const languageHandler = () => {
+    const languageHandler = async () => {
       try {
-        console.log(data.subscriptions_url);
-        axios.get(data.subscriptions_url).then((res) =>
+        await axios.get(data.subscriptions_url).then((res) =>
           res.data.map((item) => {
             const test = {
               name: item.name,
@@ -62,7 +60,6 @@ const Main = () => {
         );
 
         barDataHandler();
-        console.log("ALL INFOS", allInfos);
         console.log(chartData);
       } catch (e) {
         console.log("Erro aqui no RESULTS", e);
@@ -70,7 +67,7 @@ const Main = () => {
     };
 
     languageHandler();
-  }, [data, githubStatusTitle, repoData]);
+  }, [data, repoData]);
 
   return (
     <main className="main">

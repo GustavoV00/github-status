@@ -1,157 +1,140 @@
-import React, { useContext, useEffect, useReducer, useState } from "react";
-import axios from "axios";
+import React, { useContext, useEffect, useReducer, useState } from 'react'
+import axios from 'axios'
 
-import { UserDataContext } from "../../store/UserDataProvider";
-import { getRandomRgb } from "../../utils/UtilFunctions";
+import { UserDataContext } from '../../store/UserDataProvider'
+import ChartData from '../../components/chart/Chart'
+import { getRandomRgb } from '../../utils/UtilFunctions'
 
-const allInfos = [];
-const chart = {
-  data: {
-    labels: [],
-    datasets: {
-      label: "",
-      data: [],
-      backgroundColor: [],
-      borderColor: [],
-      borderWidth: 1,
-    },
-  },
-};
+const chartData = []
+
+let flag = false
 
 const githubStatusTitle = [
-  "Top Languages",
-  "Most Starred",
-  "Stars per Language",
-];
-
-const reducerChart = (state, action) => {
-  if (action.type === "increase") {
-    chart.data.labels = [...action.payload.labels];
-    chart.data.datasets.data = [...action.payload.data];
-    chart.data.datasets.label = action.payload.label;
-    chart.data.datasets.backgroundColor = [...action.payload.background];
-    chart.data.datasets.borderColor = [...action.payload.border];
-
-    state.push(chart);
-
-    return state;
-  } else {
-    console.log("nothing to do");
-  }
-};
+  'Top Languages',
+  'Most Starred',
+  'Stars per Language',
+]
 
 const Main = () => {
-  const { data, repoData } = useContext(UserDataContext);
+  const { data } = useContext(UserDataContext)
   // Take previous chart and add to the new one
-  const [state, dispatch] = useReducer(reducerChart, []);
+  const [test, setTest] = useState(null)
 
   const removeDuplicates = (allInfos) => {
-    console.log(allInfos);
-    const counts = {};
+    const counts = {}
     allInfos.forEach(function (x) {
-      counts[x.language] = (counts[x.language] || 0) + 1;
-    });
-    console.log(counts);
-    return counts;
-  };
+      counts[x.language] = (counts[x.language] || 0) + 1
+    })
+    console.log(counts)
+    return counts
+  }
 
-  useEffect(() => {
-    const barDataHandler = (allInfos) => {
-      const langCounted = removeDuplicates(allInfos);
-      if (langCounted.null) delete langCounted.null;
+  const barDataHandler = (allInfos) => {
+    const langCounted = removeDuplicates(allInfos)
+    if (langCounted.null) delete langCounted.null
 
-      const labelsArr = [];
-      const dataArr = [];
-      const backgroundColorArr = [];
-      const borderColorArr = [];
+    const labelsArr = []
+    const dataArr = []
+    const backgroundColorArr = []
+    const borderColorArr = []
 
+    if (labelsArr.length < 3 || dataArr.length || 3 || backgroundColorArr < 3) {
       for (let i = 0; i < githubStatusTitle.length; i++) {
         for (const [key, value] of Object.entries(langCounted)) {
-          labelsArr.push(key);
-          dataArr.push(value);
-          backgroundColorArr.push(getRandomRgb());
-          borderColorArr.push(getRandomRgb());
+          labelsArr.push(key)
+          dataArr.push(value)
+          backgroundColorArr.push(getRandomRgb())
+          borderColorArr.push(getRandomRgb())
         }
 
-        dispatch({
-          type: "increase",
-          payload: {
-            labels: labelsArr,
-            data: dataArr,
+        const langCountedLenght = Object.keys(langCounted).length;
+        console.log("TAMANHO DO LANGCOUNTED", langCountedLenght)
+        labelsArr.length = langCountedLenght
+        dataArr.length = langCountedLenght
+        backgroundColorArr.length = langCountedLenght
+        borderColorArr.length = langCountedLenght
+
+        const payload = {
+          labels: [...labelsArr],
+          datasets: [{
+            data: [...dataArr],
             label: githubStatusTitle[i],
-            background: backgroundColorArr,
-            border: borderColorArr,
-          },
-        });
+            backgroundColor: [...backgroundColorArr],
+            borderColor: [...borderColorArr],
+            borderWidth: 1,
+          }],
+        }
 
-        labelsArr.length = 0;
-        dataArr.length = 0;
-        borderColorArr.length = 0;
-        backgroundColorArr.length = 0;
+        chartData.push(payload)
       }
-      state.splice(githubStatusTitle.length);
-      console.log(state);
-    };
+    }
+    chartData.length = 3
+    setTest(chartData)
+    console.log('UseEffect -> barDataHandler -> state: \n', chartData)
+    if (flag === false) flag = true
+  }
 
-    const languageHandler = async () => {
-      try {
-        await axios.get(data.subscriptions_url).then((res) =>
-          res.data.map((item) => {
-            const test = {
-              name: item.name,
-              language: item.language,
-              stars: item.stargazers_count,
-              forks: item.forks,
-              description: item.description,
-            };
-            allInfos.push(test);
-            return item;
-          })
-        );
+  const languageHandler = async () => {
+    try {
+      const allInfos = await axios.get(data.subscriptions_url).then((res) =>
+        res.data.map((item) => {
+          const test = {
+            name: item.name,
+            language: item.language,
+            stars: item.stargazers_count,
+            forks: item.forks,
+            description: item.description,
+          }
+          return test
+        })
+      )
 
-        barDataHandler(allInfos);
-        allInfos.length = 0;
-      } catch (e) {
-        console.log(e);
-      }
-    };
+      console.log('UseEffect -> languageHandler -> allInfos: \n', allInfos)
+      barDataHandler(allInfos)
+    } catch (e) {
+      console.log(e)
+    }
+  }
 
-    languageHandler();
-  }, [data, repoData, state]);
+  useEffect(() => {
+    languageHandler()
+  }, [test])
 
   return (
-    <main className="main">
-      <div className="big-status">
-        <div className="box-main box-main-margin">{}</div>
-        <div className="box-main box-main-margin"></div>
-        <div className="box-main"></div>
+    <main className='main'>
+      <div className='big-status'>
+        <div className='box-main box-main-margin'>
+          {test ? <ChartData onData={test} index={0} /> : <span></span>}
+        </div>
+        <div className='box-main box-main-margin'></div>
+        <div className='box-main'></div>
       </div>
 
-      <div className="repo-cards">
-        <div className="repo-cards__title">
-          <div className="filter">
+      <div className='repo-cards'>
+        <div className='repo-cards__title'>
+          <div className='filter'>
             <h3>Top Repos</h3>
             <span>by</span>
             <select>
-              <option value="stars">stars</option>
-              <option value="forks">forks</option>
-              <option value="size">size</option>
+              <option value='stars'>stars</option>
+              <option value='forks'>forks</option>
+              <option value='size'>size</option>
             </select>
           </div>
         </div>
-        <div className="top-repos">
-          <div className="top-repos__cards">CARDS</div>
-          <div className="top-repos__cards">CARDS</div>
-          <div className="top-repos__cards">CARDS</div>
-          <div className="top-repos__cards">CARDS</div>
-          <div className="top-repos__cards">CARDS</div>
-          <div className="top-repos__cards">CARDS</div>
-          <div className="top-repos__cards">CARDS</div>
-          <div className="top-repos__cards">CARDS</div>
+        <div className='top-repos'>
+          <div className='top-repos__cards'>CARDS</div>
+          <div className='top-repos__cards'>CARDS</div>
+          <div className='top-repos__cards'>CARDS</div>
+          <div className='top-repos__cards'>CARDS</div>
+          <div className='top-repos__cards'>CARDS</div>
+          <div className='top-repos__cards'>CARDS</div>
+          <div className='top-repos__cards'>CARDS</div>
+          <div className='top-repos__cards'>CARDS</div>
         </div>
       </div>
     </main>
-  );
-};
+  )
+}
 
-export default Main;
+export default Main

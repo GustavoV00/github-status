@@ -1,27 +1,17 @@
-import React from "react";
+import React, { useEffect } from 'react'
 
-import { Bar } from "react-chartjs-2";
+import { Chart, CategoryScale, LinearScale, BarElement } from 'chart.js'
+import { Bar } from 'react-chartjs-2'
+Chart.register(CategoryScale, LinearScale, BarElement)
 
-const Chart = ({ chartData, title }) => {
+const ChartData = ({ onData, index }) => {
+  console.log('Estou aqui porra: \n', onData[index])
+
   return (
     <div>
-      <Bar
-        data={chartData}
-        options={{
-          plugins: {
-            title: {
-              display: true,
-              text: { title },
-            },
-            legend: {
-              display: true,
-              position: "bottom",
-            },
-          },
-        }}
-      />
+      <Bar data={onData[index]} />
     </div>
-  );
-};
+  )
+}
 
-export default Chart;
+export default ChartData
